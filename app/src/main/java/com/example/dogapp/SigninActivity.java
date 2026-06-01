@@ -79,8 +79,7 @@ public class SigninActivity extends AppCompatActivity {
     }
 
     private void sendRegisterRequest(final String userID, final String userPassword, final String userEmail, final String userGender, final String userType) {
-        // 에뮬레이터 IP 주소 오타 수정 (10.0.2.2)
-        String url = "http://10.0.2.2:336/ServerProject/UserRegister.jsp";
+        String url = "http://10.0.2.2:3306/ServerProject/UserRegister.jsp";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -107,7 +106,7 @@ public class SigninActivity extends AppCompatActivity {
                 params.put("userPassword", userPassword);
                 params.put("userEmail", userEmail);
                 params.put("userGender", userGender);
-                params.put("userType", userType); // 회원 구분 추가
+                params.put("userType", userType);
                 return params;
             }
         };

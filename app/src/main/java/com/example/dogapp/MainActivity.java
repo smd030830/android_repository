@@ -32,15 +32,14 @@ public class MainActivity extends AppCompatActivity {
                 Fragment selectedFragment = null;
 
                 // 클릭한 메뉴의 ID에 따라 바꿀 프래그먼트 지정
-                // R.id.menu_home 등은 res/menu/nav_menu.xml 파일에 적힌 id와 똑같이 맞춰야 합니다.
                 int itemId = item.getItemId();
                 if (itemId == R.id.menu_home) {
                     selectedFragment = new HomeActivity();
                 } else if (itemId == R.id.menu_message) {
-                    // 메시지 화면용 프래그먼트가 있다면 여기에 연결합니다.
+                    // 메시지 화면용 프래그먼트가 있다면 연결
                     // selectedFragment = new MessageFragment();
                 } else if (itemId == R.id.menu_profile) {
-                    // 마이페이지 화면용 프래그먼트가 있다면 여기에 연결합니다.
+                    // 마이페이지 화면용 프래그먼트가 있다면 연결
                     // selectedFragment = new ProfileFragment();
                 }
 
