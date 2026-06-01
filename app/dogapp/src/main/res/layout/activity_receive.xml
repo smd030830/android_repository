@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/background_gray">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="받은 문의 확인"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/main_blue"
+            android:layout_marginBottom="16dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_edit_text_rounded"
+            android:padding="16dp"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="보낸 사람 : 입양희망자 (id)"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tvReceivedTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="문의 제목"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="12dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/border_gray"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/tvReceivedMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="문의내용 ~~~~~"
+                android:textSize="16sp"
+                android:textColor="@color/text_primary"
+                android:lineSpacingExtra="4dp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="답변 작성하기"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/editReplyMessage"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:hint="문의에 대한 답변을 상세히 적어주세요."
+            android:gravity="top"
+            android:padding="16dp"
+            android:background="@drawable/bg_edit_text_rounded"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:layout_marginBottom="24dp" />
+
+        <android.widget.Button
+            android:id="@+id/btnSendReply"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="답변 보내기"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_button_rounded" />
+
+    </LinearLayout>
+</ScrollView>
