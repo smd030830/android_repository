@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/nav_home"
-        android:title="홈(목록)" />
+        android:id="@+id/menu_home"
+        android:title="홈" />
     <item
-        android:id="@+id/nav_diary"
-        android:title="일지작성" />
+        android:id="@+id/menu_message"
+        android:title="메시지" />
     <item
-        android:id="@+id/nav_contact"
-        android:title="문의하기" />
-    <item
-        android:id="@+id/nav_inbox"
-        android:title="받은문의" />
+        android:id="@+id/menu_profile"
+        android:title="마이페이지" />
 </menu>

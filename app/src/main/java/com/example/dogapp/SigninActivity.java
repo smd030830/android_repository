@@ -2,9 +2,11 @@ package com.example.dogapp;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +25,7 @@ public class SigninActivity extends AppCompatActivity {
 
     private EditText editRegisterId, editRegisterPw, editRegisterEmail;
     private RadioGroup rgGender;
+    private Spinner spinnerUserType;
     private Button btnRegisterComplete;
 
     @Override
@@ -34,7 +37,14 @@ public class SigninActivity extends AppCompatActivity {
         editRegisterPw = findViewById(R.id.editRegisterPw);
         editRegisterEmail = findViewById(R.id.editRegisterEmail);
         rgGender = findViewById(R.id.rgGender);
+        spinnerUserType = findViewById(R.id.spinnerUserType);
         btnRegisterComplete = findViewById(R.id.btnRegisterComplete);
+
+        // 스피너에 들어갈 목록 설정 (임시보호자, 입양희망자)
+        String[] userTypes = {"임시보호자", "입양희망자"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, userTypes);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerUserType.setAdapter(adapter);
 
         btnRegisterComplete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,19 +61,26 @@ public class SigninActivity extends AppCompatActivity {
                     userGender = "female";
                 }
 
+                // 스피너에서 선택된 값을 영문 기준 데이터로 변경
+                String selectedType = spinnerUserType.getSelectedItem().toString();
+                String userType = "adopter";
+                if (selectedType.equals("임시보호자")) {
+                    userType = "foster";
+                }
+
                 if (userID.isEmpty() || userPassword.isEmpty()) {
                     Toast.makeText(SigninActivity.this, "필수 항목을 입력하세요.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                sendRegisterRequest(userID, userPassword, userEmail,  userGender);
+                sendRegisterRequest(userID, userPassword, userEmail, userGender, userType);
             }
         });
     }
 
-    private void sendRegisterRequest(final String userID, final String userPassword, final String userEmail, final String userGender) {
-        // 본인의 서버 IP 주소와 JSP 파일 경로로 수정할게 나중에
-        String url = "http://10.0.2-2:8080/ServerProject/UserRegister.jsp";
+    private void sendRegisterRequest(final String userID, final String userPassword, final String userEmail, final String userGender, final String userType) {
+        // 에뮬레이터 IP 주소 오타 수정 (10.0.2.2)
+        String url = "http://10.0.2.2:336/ServerProject/UserRegister.jsp";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -77,7 +94,6 @@ public class SigninActivity extends AppCompatActivity {
                         }
                     }
                 },
-                //예외처리느낌
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
@@ -91,6 +107,7 @@ public class SigninActivity extends AppCompatActivity {
                 params.put("userPassword", userPassword);
                 params.put("userEmail", userEmail);
                 params.put("userGender", userGender);
+                params.put("userType", userType); // 회원 구분 추가
                 return params;
             }
         };
