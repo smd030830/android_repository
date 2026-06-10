@@ -79,7 +79,7 @@ public class SigninActivity extends AppCompatActivity {
     }
 
     private void sendRegisterRequest(final String userID, final String userPassword, final String userEmail, final String userGender, final String userType) {
-        String url = "http://10.0.2.2:3306/ServerProject/UserRegister.jsp";
+        String url = ServerConfig.endpoint("UserRegister.jsp");
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {

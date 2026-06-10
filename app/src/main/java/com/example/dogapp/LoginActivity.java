@@ -65,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void sendLoginRequest(final String userID, final String userPassword) {
-        String url = "http://10.0.2.2:3306/ServerProject/UserLogin.jsp";
+        String url = ServerConfig.endpoint("UserLogin.jsp");
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {

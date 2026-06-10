@@ -1,0 +1,44 @@
+{
+  "sessions": {
+    "019ea4c4-0f39-7d72-bc33-902ef4db65b5": {
+      "ordinary_no_progress_guard": {
+        "fingerprint": "ordinary|{\"suggestions\":[{\"title\":\"fix login and signup hitting mysql instead of tomcat\",\"description\":\"your june 1 auth work added jsp login/register endpoints, but the android app still posts to `10.0.2.2:3306` while dog list already uses tomcat on `8080`. codex can fix the broken auth path and normalize the db name mismatch before you waste time debugging network errors.\",\"prompt\":\"fix the android auth flow so login and signup call the jsp server correctly. update the app endpoints away from `10.0.2.2:3306`, align the server/app db assumptions if needed, and verify the login, signup, and dog-list flows are using a consistent backend setup.\",\"appid\":\"\"},{\"title\":\"make the new message and diary screens actually save real dog-specific data\",\"description\":\"`messageactivity` and `writeactivity` were added in the same june 1 push, but they are still layout-only, and the message screen hardcodes `초코 보호자님`. codex can turn those mockups into working flows by passing the selected dog context through `dogdetailactivity` and wiring submit/save behavior.\",\"prompt\":\"implement the unfinished message and diary flows end to end. pass the selected dog context from the list/detail screen into `messageactivity` and `writeactivity`, remove hardcoded placeholder data, and add the actual submit/save logic needed for those screens to work.\",\"appid\":\"\"},{\"title\":\"wire the bottom navigation so message and profile stop being dead taps\",\"description\":\"`nav_menu.xml` now exposes home, message, and profile, but `mainactivity` still leaves `menu_message` and `menu_profile` as comments. codex can finish that navigation so the features you just added are reachable from the main app instead of feeling half-built.\",\"prompt\":\"finish the bottom navigation implementation in `mainactivity`. make the message and profile tabs open real screens or fragments that match the current app structure, and clean up any placeholder navigation paths left from the recent feature work.\",\"appid\":\"\"}]}",
+        "first_seen_at": "2026-06-08T01:08:36.940Z",
+        "last_seen_at": "2026-06-08T01:08:36.940Z",
+        "repeat_count": 1,
+        "last_turn_id": "019ea4c4-0f99-7631-bfe9-3bae4d1d11a2",
+        "last_thread_id": null
+      }
+    },
+    "019ea758-b5c6-7980-9a09-845136152d15": {
+      "ordinary_no_progress_guard": {
+        "fingerprint": "ordinary|{\"title\":\"서버 연결 문제 해결\"}",
+        "first_seen_at": "2026-06-08T13:08:03.155Z",
+        "last_seen_at": "2026-06-08T13:08:03.155Z",
+        "repeat_count": 1,
+        "last_turn_id": "019ea758-b6db-7072-97c7-0ec639d5d577",
+        "last_thread_id": null
+      }
+    },
+    "019ea758-5d9c-7d82-8493-1e10fa7fb388": {
+      "ordinary_no_progress_guard": {
+        "fingerprint": "ordinary|완료됐습니다. db 쪽 처리: - docker mysql `my-mysql` 접속 확인 - `doglog` db 생성 - 앱용 계정 생성: `doglog / qwer1234` - 테이블 생성: - `user` - `dog` - 테스트 데이터 추가: `초코 / 믹스견 / 3살 / 입양 가능` 실행 확인: - db 포트 `3306` 열림 - tomcat 포트 `8080` 열림 - 회원가입 jsp 테스트: `success` - 로그인 jsp 테스트: `{\"success\":true,\"usertype\":\"adopter\"}` - 강아지 목록 jsp 테스트: http 200, json 응답 반환 - android 빌드도 다시 확인: `build successful` 이제 앱에서 서버 연결, 회원가입, 로그인, 목록 조회까지 돌아갈 상태입니다.",
+        "first_seen_at": "2026-06-08T13:50:17.859Z",
+        "last_seen_at": "2026-06-08T13:50:17.859Z",
+        "repeat_count": 1,
+        "last_turn_id": "019ea77b-a5b3-7a91-9d13-a30acff260ee",
+        "last_thread_id": null
+      }
+    },
+    "019eb1fc-37b8-7ca1-8cc2-5c4865369d30": {
+      "ordinary_no_progress_guard": {
+        "fingerprint": "ordinary|{\"suggestions\":[{\"title\":\"finish the tomcat login fix and verify the emulator endpoints\",\"description\":\"your june 8 edits replaced the bad `:3306` app urls with `serverconfig`, and the tomcat access log shows `userlogin.jsp` recover from a `500` to `200` responses that night. codex can finish the android/jsp alignment and smoke-check login, signup, and dog-list loading end to end.\",\"prompt\":\"finish the local server connection fix for this project: make the android app consistently use the shared tomcat base url, verify `userlogin.jsp`, `userregister.jsp`, and `getdoglist.jsp` all work from the emulator, and patch any remaining android or jsp mismatches you find.\",\"appid\":\"\"},{\"title\":\"fix the doglog package leftovers before the next android test run\",\"description\":\"the app now builds as `com.example.dogapp`, but the instrumented tests still live under `com.example.doglog` and assert the old package name. codex can update those stale references and clear the lone gradle warning in the latest `assembledebug` problems report before the next build surprises you.\",\"prompt\":\"prepare this project for the next build after the server work: update stale `doglog` package and test references to match `com.example.dogapp`, fix the gradle dsl warning reported in `build/reports/problems/problems-report.html`, and verify the android project is internally consistent.\",\"appid\":\"\"}]}",
+        "first_seen_at": "2026-06-10T14:45:08.012Z",
+        "last_seen_at": "2026-06-10T14:45:08.012Z",
+        "repeat_count": 1,
+        "last_turn_id": "019eb1fc-387f-7ac0-976c-f1e2b0b6b70f",
+        "last_thread_id": null
+      }
+    }
+  }
+}

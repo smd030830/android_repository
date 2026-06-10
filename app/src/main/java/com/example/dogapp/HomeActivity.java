@@ -72,8 +72,7 @@ public class HomeActivity extends Fragment {
     }
 
     private void loadDogDataFromServer() {
-        // 본인 서버 IP와 프로젝트명에 맞게 URL을 수정해야 합니다. (에뮬레이터 기본 IP는 10.0.2.2)
-        String url = "http://10.0.2.2:8080/ServerProject/GetDogList.jsp";
+        String url = ServerConfig.endpoint("GetDogList.jsp");
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {

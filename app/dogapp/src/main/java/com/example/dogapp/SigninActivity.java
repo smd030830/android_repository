@@ -63,7 +63,7 @@ public class SigninActivity extends AppCompatActivity {
 
     private void sendRegisterRequest(final String userID, final String userPassword, final String userEmail, final String userGender) {
         // 본인의 서버 IP 주소와 JSP 파일 경로로 수정할게 나중에
-        String url = "http://10.0.2-2:8080/ServerProject/UserRegister.jsp";
+        String url = "http://10.0.2.2:8080/ServerProject/UserRegister.jsp";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {

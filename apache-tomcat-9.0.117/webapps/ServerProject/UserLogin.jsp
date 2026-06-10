@@ -1,16 +1,23 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="application/json; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
-<%@ page import="org.json.JSONObject" %>
+<%!
+    private String jsonEscape(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+%>
 <%
     request.setCharacterEncoding("UTF-8");
     String userID = request.getParameter("userID");
     String userPassword = request.getParameter("userPassword");
 
-    String dbURL = "jdbc:mysql://localhost:3306/DogAppDB?serverTimezone=UTC";
+    String dbURL = "jdbc:mysql://localhost:3306/doglog?serverTimezone=Asia/Seoul";
     String dbID = "doglog";
     String dbPW = "qwer1234";
 
-    JSONObject json = new JSONObject();
+    String responseJson = "{\"success\":false}";
 
     try {
         Class.forName("com.mysql.cj.jdbc.Driver");
@@ -22,14 +29,13 @@
 
         ResultSet rs = pstmt.executeQuery();
         if(rs.next()) {
-            json.put("success", true);
-            json.put("userType", rs.getString("userType"));
+            responseJson = "{\"success\":true,\"userType\":\"" + jsonEscape(rs.getString("userType")) + "\"}";
         } else {
-            json.put("success", false);
+            responseJson = "{\"success\":false}";
         }
     } catch(Exception e) {
         e.printStackTrace();
-        json.put("success", false);
+        responseJson = "{\"success\":false}";
     }
-    out.print(json.toString());
+    out.print(responseJson);
 %>

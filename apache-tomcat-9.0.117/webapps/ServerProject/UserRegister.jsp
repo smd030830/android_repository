@@ -8,7 +8,7 @@
     String userGender = request.getParameter("userGender");
     String userType = request.getParameter("userType");
 
-    String dbURL = "jdbc:mysql://localhost:3306/DogAppDB?serverTimezone=UTC";
+    String dbURL = "jdbc:mysql://localhost:3306/doglog?serverTimezone=Asia/Seoul";
     String dbID = "doglog";
     String dbPW = "qwer1234";
 
