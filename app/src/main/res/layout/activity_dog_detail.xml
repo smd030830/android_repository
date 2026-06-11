@@ -23,6 +23,16 @@
         android:layout_weight="1"
         android:layout_marginBottom="16dp" />
 
+    <TextView
+        android:id="@+id/tvEmptyDiaries"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:text="아직 작성된 일지가 없습니다."
+        android:textColor="@color/text_secondary"
+        android:visibility="gone" />
+
     <android.widget.Button
         android:id="@+id/btnGoWrite"
         android:layout_width="match_parent"

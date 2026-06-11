@@ -1,11 +1,14 @@
 package com.example.dogapp;
 
 import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,6 +61,9 @@ public class HomeActivity extends Fragment {
             }
         });
 
+        Button btnWriteDiaryMain = view.findViewById(R.id.btnWriteDiaryMain);
+        btnWriteDiaryMain.setOnClickListener(v -> openWritePage());
+
         // 리사이클러뷰 및 어댑터 초기 세팅
         recyclerViewDogs = view.findViewById(R.id.recyclerViewDogs);
         recyclerViewDogs.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -69,6 +75,35 @@ public class HomeActivity extends Fragment {
         loadDogDataFromServer();
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (adapter != null) {
+            loadDogDataFromServer();
+        }
+    }
+
+    private void openWritePage() {
+        SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        String userID = prefs.getString("userID", "");
+        String userType = prefs.getString("userType", "");
+
+        if (userID.isEmpty()) {
+            Toast.makeText(getActivity(), "로그인 후 일지를 작성할 수 있습니다.", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getActivity(), LoginActivity.class);
+            startActivity(intent);
+            return;
+        }
+
+        if (!userType.equals("foster")) {
+            Toast.makeText(getActivity(), "임시보호자만 일지를 작성할 수 있습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent intent = new Intent(getActivity(), WriteActivity.class);
+        startActivity(intent);
     }
 
     private void loadDogDataFromServer() {

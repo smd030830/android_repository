@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "DogLog"
 include ':app'
+include ':backend'
