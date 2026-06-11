@@ -21,6 +21,11 @@ public class DogLogController {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @GetMapping(value = "/health", produces = TEXT_UTF8)
+    public String health() {
+        return "ok";
+    }
+
     @GetMapping(value = "/ServerProject/GetDogList.jsp", produces = JSON_UTF8)
     public List<Dog> getDogList(@RequestParam(required = false, defaultValue = "") String fosterId) {
         if (!fosterId.trim().isEmpty()) {
@@ -152,7 +157,7 @@ public class DogLogController {
             @RequestParam String userID,
             @RequestParam String userPassword) {
         List<String> userTypes = jdbcTemplate.query(
-                "SELECT userType FROM `USER` WHERE userID = ? AND userPassword = ?",
+                "SELECT userType FROM APP_USER WHERE userID = ? AND userPassword = ?",
                 (rs, rowNum) -> rs.getString("userType"),
                 userID,
                 userPassword);
@@ -172,7 +177,7 @@ public class DogLogController {
             @RequestParam String userType) {
         try {
             int inserted = jdbcTemplate.update(
-                    "INSERT INTO `USER` (userID, userPassword, userEmail, userGender, userType) VALUES (?, ?, ?, ?, ?)",
+                    "INSERT INTO APP_USER (userID, userPassword, userEmail, userGender, userType) VALUES (?, ?, ?, ?, ?)",
                     userID,
                     userPassword,
                     userEmail,

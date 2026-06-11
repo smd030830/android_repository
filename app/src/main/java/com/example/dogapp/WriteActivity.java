@@ -26,6 +26,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
@@ -47,7 +48,11 @@ import java.util.Locale;
 import java.util.Map;
 
 public class WriteActivity extends AppCompatActivity {
+    private static final String UTF8_FORM_CONTENT_TYPE =
+            "application/x-www-form-urlencoded; charset=UTF-8";
     private static final int MAX_PHOTO_SIZE = 1024;
+    private static final int MAX_PHOTO_BYTES = 700 * 1024;
+    private static final int PHOTO_UPLOAD_TIMEOUT_MS = 30_000;
 
     private String initialDogName;
     private String currentUserID;
@@ -328,8 +333,17 @@ public class WriteActivity extends AppCompatActivity {
                 params.put("fosterId", currentUserID);
                 return params;
             }
+
+            @Override
+            public String getBodyContentType() {
+                return UTF8_FORM_CONTENT_TYPE;
+            }
         };
         request.setShouldCache(false);
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                PHOTO_UPLOAD_TIMEOUT_MS,
+                0,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         Volley.newRequestQueue(this).add(request);
     }
 
@@ -363,8 +377,17 @@ public class WriteActivity extends AppCompatActivity {
                 params.put("photoData", photoData);
                 return params;
             }
+
+            @Override
+            public String getBodyContentType() {
+                return UTF8_FORM_CONTENT_TYPE;
+            }
         };
         request.setShouldCache(false);
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                PHOTO_UPLOAD_TIMEOUT_MS,
+                0,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         Volley.newRequestQueue(this).add(request);
     }
 
@@ -393,26 +416,88 @@ public class WriteActivity extends AppCompatActivity {
             return "";
         }
 
-        try (InputStream inputStream = getContentResolver().openInputStream(selectedPhotoUri)) {
-            if (inputStream == null) {
-                return "";
-            }
+        Bitmap originalBitmap = decodeSampledBitmap(selectedPhotoUri);
+        if (originalBitmap == null) {
+            return "";
+        }
 
-            Bitmap originalBitmap = BitmapFactory.decodeStream(inputStream);
-            if (originalBitmap == null) {
-                return "";
-            }
-
-            Bitmap bitmap = resizeBitmap(originalBitmap);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
-
+        Bitmap bitmap = resizeBitmap(originalBitmap);
+        try {
+            return Base64.encodeToString(compressPhoto(bitmap), Base64.NO_WRAP);
+        } finally {
             if (bitmap != originalBitmap) {
                 bitmap.recycle();
             }
             originalBitmap.recycle();
+        }
+    }
 
-            return Base64.encodeToString(outputStream.toByteArray(), Base64.NO_WRAP);
+    private Bitmap decodeSampledBitmap(Uri uri) throws IOException {
+        BitmapFactory.Options bounds = new BitmapFactory.Options();
+        bounds.inJustDecodeBounds = true;
+        try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
+            if (inputStream == null) {
+                return null;
+            }
+            BitmapFactory.decodeStream(inputStream, null, bounds);
+        }
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        int sampleSize = 1;
+        while (bounds.outWidth / sampleSize > MAX_PHOTO_SIZE * 2
+                || bounds.outHeight / sampleSize > MAX_PHOTO_SIZE * 2) {
+            sampleSize *= 2;
+        }
+        options.inSampleSize = sampleSize;
+
+        try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
+            return inputStream == null ? null : BitmapFactory.decodeStream(inputStream, null, options);
+        }
+    }
+
+    private byte[] compressPhoto(Bitmap bitmap) {
+        Bitmap workingBitmap = bitmap;
+        int quality = 85;
+
+        try {
+            while (true) {
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                workingBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+                byte[] bytes = outputStream.toByteArray();
+                if (bytes.length <= MAX_PHOTO_BYTES) {
+                    return bytes;
+                }
+
+                if (quality > 50) {
+                    quality -= 10;
+                    continue;
+                }
+
+                if (Math.max(workingBitmap.getWidth(), workingBitmap.getHeight()) <= 320) {
+                    return bytes;
+                }
+
+                int resizedWidth = Math.max(1, Math.round(workingBitmap.getWidth() * 0.8f));
+                int resizedHeight = Math.max(1, Math.round(workingBitmap.getHeight() * 0.8f));
+                if (resizedWidth == workingBitmap.getWidth() && resizedHeight == workingBitmap.getHeight()) {
+                    return bytes;
+                }
+
+                Bitmap smallerBitmap = Bitmap.createScaledBitmap(
+                        workingBitmap,
+                        resizedWidth,
+                        resizedHeight,
+                        true);
+                if (workingBitmap != bitmap) {
+                    workingBitmap.recycle();
+                }
+                workingBitmap = smallerBitmap;
+                quality = 80;
+            }
+        } finally {
+            if (workingBitmap != bitmap) {
+                workingBitmap.recycle();
+            }
         }
     }
 

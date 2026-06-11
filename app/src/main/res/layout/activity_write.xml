@@ -73,7 +73,8 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/bg_edit_text_rounded"
                 android:hint="새 강아지 이름"
-                android:inputType="text"
+                android:inputType="textCapWords"
+                android:imeOptions="actionNext"
                 android:padding="12dp"
                 android:textColor="@color/text_primary"
                 android:textColorHint="@color/text_secondary" />
@@ -85,7 +86,8 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/bg_edit_text_rounded"
                 android:hint="견종"
-                android:inputType="text"
+                android:inputType="textCapWords"
+                android:imeOptions="actionNext"
                 android:padding="12dp"
                 android:textColor="@color/text_primary"
                 android:textColorHint="@color/text_secondary" />
@@ -166,7 +168,7 @@
             android:layout_height="160dp"
             android:hint="특이사항이나 활동 내용을 입력하세요..."
             android:gravity="top|start"
-            android:inputType="textMultiLine"
+            android:inputType="textCapSentences|textMultiLine"
             android:imeOptions="flagNoExtractUi"
             android:padding="12dp"
             android:textColor="@color/text_primary"
