@@ -31,6 +31,8 @@ public class DiaryStore {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject item = array.getJSONObject(i);
                 diaries.add(new DiaryEntry(
+                        item.optInt("id"),
+                        item.optString("fosterId"),
                         item.optString("dogName", dogName),
                         item.optString("dateText"),
                         item.optInt("foodAmount"),
@@ -50,6 +52,8 @@ public class DiaryStore {
         for (DiaryEntry diary : diaries) {
             JSONObject item = new JSONObject();
             try {
+                item.put("id", diary.getId());
+                item.put("fosterId", diary.getFosterId());
                 item.put("dogName", diary.getDogName());
                 item.put("dateText", diary.getDateText());
                 item.put("foodAmount", diary.getFoodAmount());

@@ -1,12 +1,12 @@
 {
   "version": 1,
   "last_triage": {
-    "lane": "HEAVY",
-    "destination": "autopilot",
-    "reason": "implementation_research_goal",
-    "prompt_signature": "sha256:7b6bf85b3dca3d16663f00cea9d6aafd81e66f5f046baa5f7cb713a622fea392",
-    "turn_id": "019eb473-346b-7320-ab5d-01fbdbc69691",
-    "created_at": "2026-06-11T02:11:50.889Z"
+    "lane": "LIGHT",
+    "destination": "explore",
+    "reason": "question_or_explanation",
+    "prompt_signature": "sha256:4a0c5b77bd6510e9a3e9b6fcfebcd84c58b179ed8860f82cf9ea32d3ab6846be",
+    "turn_id": "019ebaa6-583b-7601-b37d-78e1b712f9c3",
+    "created_at": "2026-06-12T07:05:25.367Z"
   },
   "suppress_followup": true
 }

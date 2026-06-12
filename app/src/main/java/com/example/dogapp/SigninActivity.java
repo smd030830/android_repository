@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SigninActivity extends AppCompatActivity {
+    private static final String UTF8_FORM_CONTENT_TYPE =
+            "application/x-www-form-urlencoded; charset=UTF-8";
 
     private EditText editRegisterId, editRegisterPw, editRegisterEmail;
     private RadioGroup rgGender;
@@ -40,7 +42,6 @@ public class SigninActivity extends AppCompatActivity {
         spinnerUserType = findViewById(R.id.spinnerUserType);
         btnRegisterComplete = findViewById(R.id.btnRegisterComplete);
 
-        // 스피너에 들어갈 목록 설정 (임시보호자, 입양희망자)
         String[] userTypes = {"임시보호자", "입양희망자"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, userTypes);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -49,9 +50,9 @@ public class SigninActivity extends AppCompatActivity {
         btnRegisterComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String userID = editRegisterId.getText().toString();
-                String userPassword = editRegisterPw.getText().toString();
-                String userEmail = editRegisterEmail.getText().toString();
+                String userID = editRegisterId.getText().toString().trim();
+                String userPassword = editRegisterPw.getText().toString().trim();
+                String userEmail = editRegisterEmail.getText().toString().trim();
 
                 int checkedId = rgGender.getCheckedRadioButtonId();
                 String userGender = "";
@@ -61,7 +62,6 @@ public class SigninActivity extends AppCompatActivity {
                     userGender = "female";
                 }
 
-                // 스피너에서 선택된 값을 영문 기준 데이터로 변경
                 String selectedType = spinnerUserType.getSelectedItem().toString();
                 String userType = "adopter";
                 if (selectedType.equals("임시보호자")) {
@@ -108,6 +108,11 @@ public class SigninActivity extends AppCompatActivity {
                 params.put("userGender", userGender);
                 params.put("userType", userType);
                 return params;
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return UTF8_FORM_CONTENT_TYPE;
             }
         };
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.Test02_3" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/main_blue</item>
+        <item name="colorPrimaryVariant">@color/main_blue_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:windowBackground">@color/background_gray</item>
+    </style>
+
+    <style name="Theme.Test02_3" parent="Base.Theme.Test02_3" />
+</resources>

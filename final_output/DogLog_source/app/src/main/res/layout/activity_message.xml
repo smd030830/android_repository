@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="임시 보호자에게 문의하기"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="강아지의 성격이나 건강 상태에 대해 궁금한 점을 남겨주세요."
+        android:textColor="@color/text_secondary"
+        android:layout_marginBottom="24dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:background="@drawable/bg_edit_text_rounded"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="받는 사람: "
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/tvFosterName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="초코 보호자님" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/editContactTitle"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="문의 제목을 입력하세요"
+        android:background="@drawable/bg_edit_text_rounded"
+        android:paddingStart="16dp"
+        android:layout_marginBottom="12dp" />
+
+    <EditText
+        android:id="@+id/editContactMessage"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:hint="문의 내용을 상세히 적어주세요. 보호자가 확인 후 답변을 드릴 예정입니다."
+        android:gravity="top"
+        android:padding="16dp"
+        android:background="@drawable/bg_edit_text_rounded"
+        android:layout_marginBottom="24dp" />
+
+    <android.widget.Button
+        android:id="@+id/btnSendMessage"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="문의 메시지 보내기"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:background="@drawable/bg_button_rounded" />
+
+</LinearLayout>

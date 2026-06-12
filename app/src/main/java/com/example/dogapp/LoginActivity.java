@@ -76,10 +76,8 @@ public class LoginActivity extends AppCompatActivity {
                             boolean success = jsonResponse.getBoolean("success");
 
                             if (success) {
-                                // 서버가 응답한 회원 구분(foster 또는 adopter) 추출
                                 String userType = jsonResponse.getString("userType");
 
-                                // SharedPreferences에 로그인 정보와 권한 저장
                                 SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
                                 SharedPreferences.Editor editor = prefs.edit();
                                 editor.putString("userID", userID);
@@ -88,7 +86,6 @@ public class LoginActivity extends AppCompatActivity {
 
                                 Toast.makeText(LoginActivity.this, "로그인에 성공했습니다.", Toast.LENGTH_SHORT).show();
 
-                                // 메인 화면으로 이동
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 startActivity(intent);
                                 finish();

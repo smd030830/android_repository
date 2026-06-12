@@ -1,6 +1,5 @@
 package com.example.dogapp;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -73,24 +72,19 @@ public class WriteActivity extends AppCompatActivity {
     private EditText editNewDogName;
     private EditText editNewDogBreed;
     private EditText editNewDogAge;
+    private Button btnAddPhoto;
     private Button btnSave;
 
-    private final ActivityResultLauncher<Intent> photoPickerLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() != RESULT_OK || result.getData() == null || result.getData().getData() == null) {
+    private final ActivityResultLauncher<String> photoPickerLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                if (uri == null) {
                     return;
                 }
 
-                selectedPhotoUri = result.getData().getData();
-                final int flags = result.getData().getFlags()
-                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                try {
-                    getContentResolver().takePersistableUriPermission(selectedPhotoUri, flags);
-                } catch (SecurityException ignored) {
-                }
-
+                selectedPhotoUri = uri;
                 imgSelectedPhoto.setImageURI(selectedPhotoUri);
                 imgSelectedPhoto.setVisibility(ImageView.VISIBLE);
+                btnAddPhoto.setText(isNewDogMode() ? "홈/일지 사진 변경하기" : "일지 사진 변경하기");
                 tvSelectedPhotoName.setText(getDisplayName(selectedPhotoUri));
             });
 
@@ -121,7 +115,7 @@ public class WriteActivity extends AppCompatActivity {
         seekFood = findViewById(R.id.seekFood);
         seekPoop = findViewById(R.id.seekPoop);
         editDiaryContent = findViewById(R.id.editDiaryContent);
-        Button btnAddPhoto = findViewById(R.id.btnAddPhoto);
+        btnAddPhoto = findViewById(R.id.btnAddPhoto);
         Button btnCancel = findViewById(R.id.btnCancel);
         btnSave = findViewById(R.id.btnSave);
         imgSelectedPhoto = findViewById(R.id.imgSelectedPhoto);
@@ -227,9 +221,15 @@ public class WriteActivity extends AppCompatActivity {
 
         if (newDogMode) {
             tvWriteTitle.setText("새 임시보호 강아지 일지 작성");
+            if (selectedPhotoUri == null) {
+                btnAddPhoto.setText("+ 홈/일지 사진 첨부하기");
+            }
             return;
         }
 
+        if (selectedPhotoUri == null) {
+            btnAddPhoto.setText("+ 일지 사진 첨부하기");
+        }
         String selectedDogName = getSelectedDogName();
         if (TextUtils.isEmpty(selectedDogName)) {
             tvWriteTitle.setText("일지 작성");
@@ -248,12 +248,7 @@ public class WriteActivity extends AppCompatActivity {
     }
 
     private void openPhotoPicker() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("image/*");
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-        photoPickerLauncher.launch(intent);
+        photoPickerLauncher.launch("image/*");
     }
 
     private void saveDiary() {
@@ -331,6 +326,7 @@ public class WriteActivity extends AppCompatActivity {
                 params.put("age", String.valueOf(dogAge));
                 params.put("status", "임시보호중");
                 params.put("fosterId", currentUserID);
+                params.put("photoData", photoData);
                 return params;
             }
 

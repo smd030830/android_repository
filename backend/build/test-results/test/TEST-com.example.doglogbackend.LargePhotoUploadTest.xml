@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.example.doglogbackend.LargePhotoUploadTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-06-11T11:04:23.060Z" hostname="NGN0830" time="0.869">
+<testsuite name="com.example.doglogbackend.LargePhotoUploadTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-06-12T08:59:43.405Z" hostname="DESKTOP-6UV1IM7" time="0.306">
   <properties/>
-  <testcase name="acceptsPhotoFormDataLargerThanTheDefaultTomcatLimit()" classname="com.example.doglogbackend.LargePhotoUploadTest" time="0.869"/>
-  <system-out><![CDATA[2026-06-11T20:04:20.601+09:00  INFO 4756 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.doglogbackend.LargePhotoUploadTest]: LargePhotoUploadTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-06-11T20:04:20.606+09:00  INFO 4756 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.doglogbackend.DogLogBackendApplication for test class com.example.doglogbackend.LargePhotoUploadTest
+  <testcase name="acceptsPhotoFormDataLargerThanTheDefaultTomcatLimit()" classname="com.example.doglogbackend.LargePhotoUploadTest" time="0.306"/>
+  <system-out><![CDATA[2026-06-12T17:59:42.933+09:00  INFO 23440 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.doglogbackend.LargePhotoUploadTest]: LargePhotoUploadTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-06-12T17:59:42.934+09:00  INFO 23440 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.doglogbackend.DogLogBackendApplication for test class com.example.doglogbackend.LargePhotoUploadTest
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -14,24 +14,21 @@
 
  :: Spring Boot ::                (v3.3.5)
 
-2026-06-11T20:04:20.705+09:00  INFO 4756 --- [    Test worker] c.e.doglogbackend.LargePhotoUploadTest   : Starting LargePhotoUploadTest using Java 21.0.10 with PID 4756 (started by smd08 in C:\develop\KDTgit\codingtest\android_repository\backend)
-2026-06-11T20:04:20.705+09:00  INFO 4756 --- [    Test worker] c.e.doglogbackend.LargePhotoUploadTest   : No active profile set, falling back to 1 default profile: "default"
-2026-06-11T20:04:21.668+09:00  INFO 4756 --- [    Test worker] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
-2026-06-11T20:04:21.682+09:00  INFO 4756 --- [    Test worker] o.a.catalina.core.AprLifecycleListener   : An older version [1.3.7] of the Apache Tomcat Native library is installed, while Tomcat recommends a minimum version of [2.0.5]
-2026-06-11T20:04:21.682+09:00  INFO 4756 --- [    Test worker] o.a.catalina.core.AprLifecycleListener   : Loaded Apache Tomcat Native library [1.3.7] using APR version [1.7.6].
-2026-06-11T20:04:21.715+09:00  INFO 4756 --- [    Test worker] o.a.catalina.core.AprLifecycleListener   : OpenSSL successfully initialized [OpenSSL 3.0.19 27 Jan 2026]
-2026-06-11T20:04:21.757+09:00  INFO 4756 --- [    Test worker] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-06-11T20:04:21.758+09:00  INFO 4756 --- [    Test worker] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
-2026-06-11T20:04:22.055+09:00  INFO 4756 --- [    Test worker] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2026-06-11T20:04:22.056+09:00  INFO 4756 --- [    Test worker] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1340 ms
-2026-06-11T20:04:22.238+09:00  INFO 4756 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
-2026-06-11T20:04:22.243+09:00  INFO 4756 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection conn10: url=jdbc:h2:mem:large-photo-test user=SA
-2026-06-11T20:04:22.244+09:00  INFO 4756 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
-2026-06-11T20:04:23.030+09:00  INFO 4756 --- [    Test worker] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 51458 (http) with context path '/'
-2026-06-11T20:04:23.047+09:00  INFO 4756 --- [    Test worker] c.e.doglogbackend.LargePhotoUploadTest   : Started LargePhotoUploadTest in 2.431 seconds (process running for 19.515)
-2026-06-11T20:04:23.562+09:00  INFO 4756 --- [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-06-11T20:04:23.562+09:00  INFO 4756 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2026-06-11T20:04:23.563+09:00  INFO 4756 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-06-12T17:59:42.956+09:00  INFO 23440 --- [    Test worker] c.e.doglogbackend.LargePhotoUploadTest   : Starting LargePhotoUploadTest using Java 21.0.6 with PID 23440 (started by 남궁 능 in D:\github\android_repository\backend)
+2026-06-12T17:59:42.957+09:00  INFO 23440 --- [    Test worker] c.e.doglogbackend.LargePhotoUploadTest   : No active profile set, falling back to 1 default profile: "default"
+2026-06-12T17:59:43.188+09:00  INFO 23440 --- [    Test worker] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-06-12T17:59:43.200+09:00  INFO 23440 --- [    Test worker] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-12T17:59:43.201+09:00  INFO 23440 --- [    Test worker] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-06-12T17:59:43.260+09:00  INFO 23440 --- [    Test worker] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-12T17:59:43.260+09:00  INFO 23440 --- [    Test worker] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 299 ms
+2026-06-12T17:59:43.302+09:00  INFO 23440 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-06-12T17:59:43.304+09:00  INFO 23440 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection conn10: url=jdbc:h2:mem:large-photo-test user=DOGLOG
+2026-06-12T17:59:43.305+09:00  INFO 23440 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-06-12T17:59:43.400+09:00  INFO 23440 --- [    Test worker] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 53358 (http) with context path '/'
+2026-06-12T17:59:43.403+09:00  INFO 23440 --- [    Test worker] c.e.doglogbackend.LargePhotoUploadTest   : Started LargePhotoUploadTest in 0.467 seconds (process running for 3.358)
+2026-06-12T17:59:43.506+09:00  INFO 23440 --- [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-12T17:59:43.506+09:00  INFO 23440 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-12T17:59:43.506+09:00  INFO 23440 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
