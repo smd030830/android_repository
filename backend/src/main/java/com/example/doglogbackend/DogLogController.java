@@ -1,10 +1,12 @@
 package com.example.doglogbackend;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +17,37 @@ import org.springframework.web.bind.annotation.RestController;
 public class DogLogController {
     private static final String JSON_UTF8 = MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8";
     private static final String TEXT_UTF8 = MediaType.TEXT_PLAIN_VALUE + ";charset=UTF-8";
+    private static final String SUCCESS = "success";
+    private static final String FAIL = "fail";
+    private static final String ERROR = "error";
+    private static final String DOG_COLUMNS =
+            "name, breed, age, status, COALESCE(fosterId, '') AS fosterId, COALESCE(photoData, '') AS photoData";
+    private static final RowMapper<Dog> DOG_ROW_MAPPER = (rs, rowNum) -> new Dog(
+            rs.getString("name"),
+            rs.getString("breed"),
+            rs.getInt("age"),
+            rs.getString("status"),
+            rs.getString("fosterId"),
+            rs.getString("photoData"));
+    private static final RowMapper<Diary> DIARY_ROW_MAPPER = (rs, rowNum) -> new Diary(
+            rs.getInt("id"),
+            rs.getString("fosterId"),
+            rs.getString("dogName"),
+            rs.getString("dateText"),
+            rs.getInt("foodAmount"),
+            rs.getInt("poopCount"),
+            rs.getString("content"),
+            rs.getString("photoData"));
+    private static final RowMapper<ContactMessage> MESSAGE_ROW_MAPPER = (rs, rowNum) -> new ContactMessage(
+            rs.getInt("id"),
+            rs.getString("senderId"),
+            rs.getString("receiverId"),
+            rs.getString("dogName"),
+            rs.getString("title"),
+            rs.getString("content"),
+            rs.getString("replyContent"),
+            timestampText(rs.getTimestamp("createdAt")),
+            timestampText(rs.getTimestamp("repliedAt")));
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -31,27 +64,14 @@ public class DogLogController {
     public List<Dog> getDogList(@RequestParam(required = false, defaultValue = "") String fosterId) {
         if (!fosterId.trim().isEmpty()) {
             return jdbcTemplate.query(
-                    "SELECT name, breed, age, status, COALESCE(fosterId, '') AS fosterId, COALESCE(photoData, '') AS photoData FROM DOG "
-                            + "WHERE fosterId = ? ORDER BY id DESC",
-                    (rs, rowNum) -> new Dog(
-                            rs.getString("name"),
-                            rs.getString("breed"),
-                            rs.getInt("age"),
-                            rs.getString("status"),
-                            rs.getString("fosterId"),
-                            rs.getString("photoData")),
+                    "SELECT " + DOG_COLUMNS + " FROM DOG WHERE fosterId = ? ORDER BY id DESC",
+                    DOG_ROW_MAPPER,
                     fosterId.trim());
         }
 
         return jdbcTemplate.query(
-                "SELECT name, breed, age, status, COALESCE(fosterId, '') AS fosterId, COALESCE(photoData, '') AS photoData FROM DOG ORDER BY id DESC",
-                (rs, rowNum) -> new Dog(
-                        rs.getString("name"),
-                        rs.getString("breed"),
-                        rs.getInt("age"),
-                        rs.getString("status"),
-                        rs.getString("fosterId"),
-                        rs.getString("photoData")));
+                "SELECT " + DOG_COLUMNS + " FROM DOG ORDER BY id DESC",
+                DOG_ROW_MAPPER);
     }
 
     @GetMapping(value = "/ServerProject/GetDogDetail.jsp", produces = JSON_UTF8)
@@ -60,29 +80,15 @@ public class DogLogController {
             @RequestParam(required = false, defaultValue = "") String fosterId) {
         if (!fosterId.trim().isEmpty()) {
             return jdbcTemplate.query(
-                    "SELECT name, breed, age, status, COALESCE(fosterId, '') AS fosterId, COALESCE(photoData, '') AS photoData "
-                            + "FROM DOG WHERE name = ? AND fosterId = ? ORDER BY id DESC LIMIT 1",
-                    (rs, rowNum) -> new Dog(
-                            rs.getString("name"),
-                            rs.getString("breed"),
-                            rs.getInt("age"),
-                            rs.getString("status"),
-                            rs.getString("fosterId"),
-                            rs.getString("photoData")),
+                    "SELECT " + DOG_COLUMNS + " FROM DOG WHERE name = ? AND fosterId = ? ORDER BY id DESC LIMIT 1",
+                    DOG_ROW_MAPPER,
                     name,
                     fosterId.trim());
         }
 
         return jdbcTemplate.query(
-                "SELECT name, breed, age, status, COALESCE(fosterId, '') AS fosterId, COALESCE(photoData, '') AS photoData "
-                        + "FROM DOG WHERE name = ? ORDER BY id DESC LIMIT 1",
-                (rs, rowNum) -> new Dog(
-                        rs.getString("name"),
-                        rs.getString("breed"),
-                        rs.getInt("age"),
-                        rs.getString("status"),
-                        rs.getString("fosterId"),
-                        rs.getString("photoData")),
+                "SELECT " + DOG_COLUMNS + " FROM DOG WHERE name = ? ORDER BY id DESC LIMIT 1",
+                DOG_ROW_MAPPER,
                 name);
     }
 
@@ -97,7 +103,7 @@ public class DogLogController {
         try {
             String ownerId = fosterId.trim();
             if (ownerId.isEmpty()) {
-                return "fail";
+                return FAIL;
             }
 
             List<Integer> existingIds = jdbcTemplate.query(
@@ -107,7 +113,7 @@ public class DogLogController {
                     ownerId);
 
             if (!existingIds.isEmpty()) {
-                return "success";
+                return SUCCESS;
             }
 
             int inserted = jdbcTemplate.update(
@@ -118,9 +124,9 @@ public class DogLogController {
                     status,
                     ownerId,
                     photoData);
-            return inserted > 0 ? "success" : "fail";
+            return responseForRows(inserted);
         } catch (DataAccessException e) {
-            return "error";
+            return ERROR;
         }
     }
 
@@ -135,7 +141,7 @@ public class DogLogController {
         try {
             String ownerId = fosterId.trim();
             if (ownerId.isEmpty()) {
-                return "fail";
+                return FAIL;
             }
 
             int updated = jdbcTemplate.update(
@@ -146,9 +152,9 @@ public class DogLogController {
                     photoData,
                     name,
                     ownerId);
-            return updated > 0 ? "success" : "fail";
+            return responseForRows(updated);
         } catch (DataAccessException e) {
-            return "error";
+            return ERROR;
         }
     }
 
@@ -160,15 +166,7 @@ public class DogLogController {
             return jdbcTemplate.query(
                     "SELECT id, fosterId, dogName, dateText, foodAmount, poopCount, content, COALESCE(photoData, '') AS photoData "
                             + "FROM DIARY WHERE dogName = ? AND fosterId = ? ORDER BY id DESC",
-                    (rs, rowNum) -> new Diary(
-                            rs.getInt("id"),
-                            rs.getString("fosterId"),
-                            rs.getString("dogName"),
-                            rs.getString("dateText"),
-                            rs.getInt("foodAmount"),
-                            rs.getInt("poopCount"),
-                            rs.getString("content"),
-                            rs.getString("photoData")),
+                    DIARY_ROW_MAPPER,
                     dogName,
                     fosterId.trim());
         }
@@ -176,15 +174,7 @@ public class DogLogController {
         return jdbcTemplate.query(
                 "SELECT id, fosterId, dogName, dateText, foodAmount, poopCount, content, COALESCE(photoData, '') AS photoData "
                         + "FROM DIARY WHERE dogName = ? ORDER BY id DESC",
-                (rs, rowNum) -> new Diary(
-                        rs.getInt("id"),
-                        rs.getString("fosterId"),
-                        rs.getString("dogName"),
-                        rs.getString("dateText"),
-                        rs.getInt("foodAmount"),
-                        rs.getInt("poopCount"),
-                        rs.getString("content"),
-                        rs.getString("photoData")),
+                DIARY_ROW_MAPPER,
                 dogName);
     }
 
@@ -200,11 +190,11 @@ public class DogLogController {
         try {
             String ownerId = fosterId.trim();
             if (ownerId.isEmpty()) {
-                return "fail";
+                return FAIL;
             }
 
             if (!dogBelongsToFoster(dogName, ownerId)) {
-                return "fail";
+                return FAIL;
             }
 
             int inserted = jdbcTemplate.update(
@@ -217,9 +207,9 @@ public class DogLogController {
                     poopCount,
                     content,
                     photoData);
-            return inserted > 0 ? "success" : "fail";
+            return responseForRows(inserted);
         } catch (DataAccessException e) {
-            return "error";
+            return ERROR;
         }
     }
 
@@ -230,16 +220,16 @@ public class DogLogController {
         try {
             String ownerId = fosterId.trim();
             if (ownerId.isEmpty()) {
-                return "fail";
+                return FAIL;
             }
 
             int deleted = jdbcTemplate.update(
                     "DELETE FROM DIARY WHERE id = ? AND fosterId = ?",
                     id,
                     ownerId);
-            return deleted > 0 ? "success" : "fail";
+            return responseForRows(deleted);
         } catch (DataAccessException e) {
-            return "error";
+            return ERROR;
         }
     }
 
@@ -250,7 +240,7 @@ public class DogLogController {
         try {
             String ownerId = fosterId.trim();
             if (ownerId.isEmpty()) {
-                return "fail";
+                return FAIL;
             }
 
             List<Integer> dogIds = jdbcTemplate.query(
@@ -259,14 +249,14 @@ public class DogLogController {
                     name,
                     ownerId);
             if (dogIds.isEmpty()) {
-                return "fail";
+                return FAIL;
             }
 
             jdbcTemplate.update("DELETE FROM DIARY WHERE dogName = ? AND fosterId = ?", name, ownerId);
             int deleted = jdbcTemplate.update("DELETE FROM DOG WHERE id = ? AND fosterId = ?", dogIds.get(0), ownerId);
-            return deleted > 0 ? "success" : "fail";
+            return responseForRows(deleted);
         } catch (DataAccessException e) {
-            return "error";
+            return ERROR;
         }
     }
 
@@ -282,7 +272,7 @@ public class DogLogController {
             String trimmedReceiver = receiverId.trim();
             String trimmedContent = content.trim();
             if (trimmedSender.isEmpty() || trimmedReceiver.isEmpty() || trimmedContent.isEmpty()) {
-                return "fail";
+                return FAIL;
             }
 
             int inserted = jdbcTemplate.update(
@@ -292,9 +282,9 @@ public class DogLogController {
                     dogName.trim(),
                     emptyToDefault(title, dogName.trim().isEmpty() ? "문의 메시지" : dogName.trim() + " 문의"),
                     trimmedContent);
-            return inserted > 0 ? "success" : "fail";
+            return responseForRows(inserted);
         } catch (DataAccessException e) {
-            return "error";
+            return ERROR;
         }
     }
 
@@ -310,16 +300,7 @@ public class DogLogController {
                 "SELECT id, senderId, receiverId, dogName, title, content, "
                         + "COALESCE(replyContent, '') AS replyContent, createdAt, repliedAt "
                         + "FROM CONTACT_MESSAGE WHERE receiverId = ? ORDER BY id DESC",
-                (rs, rowNum) -> new ContactMessage(
-                        rs.getInt("id"),
-                        rs.getString("senderId"),
-                        rs.getString("receiverId"),
-                        rs.getString("dogName"),
-                        rs.getString("title"),
-                        rs.getString("content"),
-                        rs.getString("replyContent"),
-                        timestampText(rs.getTimestamp("createdAt")),
-                        timestampText(rs.getTimestamp("repliedAt"))),
+                MESSAGE_ROW_MAPPER,
                 ownerId);
     }
 
@@ -335,16 +316,7 @@ public class DogLogController {
                 "SELECT id, senderId, receiverId, dogName, title, content, "
                         + "COALESCE(replyContent, '') AS replyContent, createdAt, repliedAt "
                         + "FROM CONTACT_MESSAGE WHERE senderId = ? ORDER BY id DESC",
-                (rs, rowNum) -> new ContactMessage(
-                        rs.getInt("id"),
-                        rs.getString("senderId"),
-                        rs.getString("receiverId"),
-                        rs.getString("dogName"),
-                        rs.getString("title"),
-                        rs.getString("content"),
-                        rs.getString("replyContent"),
-                        timestampText(rs.getTimestamp("createdAt")),
-                        timestampText(rs.getTimestamp("repliedAt"))),
+                MESSAGE_ROW_MAPPER,
                 ownerId);
     }
 
@@ -357,7 +329,7 @@ public class DogLogController {
             String ownerId = receiverId.trim();
             String content = replyContent.trim();
             if (ownerId.isEmpty() || content.isEmpty()) {
-                return "fail";
+                return FAIL;
             }
 
             int updated = jdbcTemplate.update(
@@ -366,9 +338,9 @@ public class DogLogController {
                     content,
                     id,
                     ownerId);
-            return updated > 0 ? "success" : "fail";
+            return responseForRows(updated);
         } catch (DataAccessException e) {
-            return "error";
+            return ERROR;
         }
     }
 
@@ -398,26 +370,30 @@ public class DogLogController {
         try {
             String trimmedUserId = userID.trim();
             if (trimmedUserId.isEmpty() || userPassword.trim().isEmpty()) {
-                return "fail";
+                return FAIL;
             }
 
             if (userExists("APP_USER", trimmedUserId) || userExists("`USER`", trimmedUserId)) {
-                return "fail";
+                return FAIL;
             }
 
             int appUserInserted = insertUser("APP_USER", trimmedUserId, userPassword, userEmail, userGender, userType);
             int legacyUserInserted = insertUser("`USER`", trimmedUserId, userPassword, userEmail, userGender, userType);
-            return appUserInserted > 0 && legacyUserInserted > 0 ? "success" : "fail";
+            return appUserInserted > 0 && legacyUserInserted > 0 ? SUCCESS : FAIL;
         } catch (DataAccessException e) {
-            return "error";
+            return ERROR;
         }
+    }
+
+    private String responseForRows(int affectedRows) {
+        return affectedRows > 0 ? SUCCESS : FAIL;
     }
 
     private String emptyToDefault(String value, String defaultValue) {
         return value == null || value.trim().isEmpty() ? defaultValue : value.trim();
     }
 
-    private String timestampText(java.sql.Timestamp timestamp) {
+    private static String timestampText(Timestamp timestamp) {
         return timestamp == null ? "" : timestamp.toLocalDateTime().toString().replace('T', ' ');
     }
 

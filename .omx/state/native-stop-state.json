@@ -49,6 +49,16 @@
         "last_turn_id": "019eb72c-2a52-7813-80ae-773974efff35",
         "last_thread_id": null
       }
+    },
+    "019f1689-1185-7001-991a-05f78a66c514": {
+      "ordinary_no_progress_guard": {
+        "fingerprint": "ordinary|ai slop cleanup report ====================== scope: [doglogcontroller.java](c:/develop/kdtgit/codingtest/android_repository/backend/src/main/java/com/example/doglogbackend/doglogcontroller.java) behavior lock: ran `.\\gradlew.bat :backend:test` before and after edits. both passed. cleanup plan: bounded to backend controller duplication. removed repeated row mappers and response string handling first; no broad architecture changes. fallback findings: legacy login fallback from `app_user` to ``user`` is preserved as grounded compatibility. it has regression coverage in `usercanloginwithexistingusertabledata`. passes completed: - fallback-like code resolution gate: preserved tested compatibility fallback. - dead code deletion: none found in scoped file. - duplicate removal: extracted shared `rowmapper`s for dog, diary, and contact message rows. - naming/error handling cleanup: centralized `\"success\"`, `\"fail\"`, `\"error\"` response constants and row-count response handling. - test reinforcement: no new tests needed; existing backend tests cover the changed behavior. quality gates: - regression tests: pass, `.\\gradlew.bat :backend:test` - typecheck/compile: pass via backend test task - whitespace check: pass, `git diff --check -- backend\\src\\main\\java\\com\\example\\doglogbackend\\doglogcontroller.java` changed files: - [doglogcontroller.java](c:/develop/kdtgit/codingtest/android_repository/backend/src/main/java/com/example/doglogbackend/doglogcontroller.java) - simplified repeated mapping and response logic. remaining risks: - `.omx/state/session.json` was already modified before this work and remains untouched. - gradle reports deprecation warnings unrelated to this cleanup.",
+        "first_seen_at": "2026-06-30T03:26:52.924Z",
+        "last_seen_at": "2026-06-30T03:26:52.924Z",
+        "repeat_count": 1,
+        "last_turn_id": "019f1689-266e-7db0-808c-99c369545cd8",
+        "last_thread_id": null
+      }
     }
   }
 }
