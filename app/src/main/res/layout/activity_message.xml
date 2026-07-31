@@ -2,71 +2,85 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="임시 보호자에게 문의하기"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        android:layout_marginBottom="8dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="강아지의 성격이나 건강 상태에 대해 궁금한 점을 남겨주세요."
-        android:textColor="@color/text_secondary"
-        android:layout_marginBottom="24dp" />
+    android:background="@color/chat_background"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="12dp"
-        android:background="@drawable/bg_edit_text_rounded"
-        android:layout_marginBottom="16dp">
+        android:background="@drawable/bg_chat_header"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="18dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="18dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvChatPartner"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="받는 사람: "
+            android:textColor="@color/white"
+            android:textSize="21sp"
             android:textStyle="bold" />
+
         <TextView
-            android:id="@+id/tvFosterName"
-            android:layout_width="wrap_content"
+            android:id="@+id/tvChatStatus"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="초코 보호자님" />
+            android:layout_marginTop="5dp"
+            android:textColor="@color/chat_header_subtitle"
+            android:textSize="14sp" />
     </LinearLayout>
 
-    <EditText
-        android:id="@+id/editContactTitle"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerChatMessages"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:hint="문의 제목을 입력하세요"
-        android:background="@drawable/bg_edit_text_rounded"
-        android:paddingStart="16dp"
-        android:layout_marginBottom="12dp" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="14dp"
+        android:paddingTop="14dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="14dp" />
 
-    <EditText
-        android:id="@+id/editContactMessage"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:hint="문의 내용을 상세히 적어주세요. 보호자가 확인 후 답변을 드릴 예정입니다."
-        android:gravity="top"
-        android:padding="16dp"
-        android:background="@drawable/bg_edit_text_rounded"
-        android:layout_marginBottom="24dp" />
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="10dp">
 
-    <android.widget.Button
-        android:id="@+id/btnSendMessage"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="문의 메시지 보내기"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        android:background="@drawable/bg_button_rounded" />
+        <EditText
+            android:id="@+id/editChatMessage"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_chat_input"
+            android:hint="메시지 입력"
+            android:imeOptions="actionSend"
+            android:inputType="textMultiLine|textCapSentences"
+            android:maxLines="4"
+            android:minHeight="46dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:textSize="15sp" />
 
+        <ImageButton
+            android:id="@+id/btnSendChatMessage"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_send_button"
+            android:contentDescription="전송"
+            android:padding="11dp"
+            android:src="@android:drawable/ic_menu_send"
+            android:tint="@color/white" />
+    </LinearLayout>
 </LinearLayout>

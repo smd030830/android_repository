@@ -3,45 +3,62 @@ package com.example.dogapp;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.widget.Button;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.Request;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class MessageActivity extends AppCompatActivity {
-    private static final String UTF8_FORM_CONTENT_TYPE =
-            "application/x-www-form-urlencoded; charset=UTF-8";
-
     private String senderId;
     private String recipientId;
     private String dogName;
-    private EditText editContactTitle;
-    private EditText editContactMessage;
+    private String chatId;
+    private ArrayList<ChatMessage> messages;
+    private ChatMessageAdapter adapter;
+    private DatabaseReference chatRef;
+    private ValueEventListener messageListener;
+    private RecyclerView recyclerChatMessages;
+    private TextView tvChatStatus;
+    private TextView tvChatPartner;
+    private EditText editChatMessage;
+    private ImageButton btnSendChatMessage;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
 
-        TextView tvFosterName = findViewById(R.id.tvFosterName);
-        editContactTitle = findViewById(R.id.editContactTitle);
-        editContactMessage = findViewById(R.id.editContactMessage);
-        Button btnSendMessage = findViewById(R.id.btnSendMessage);
+        tvChatPartner = findViewById(R.id.tvChatPartner);
+        tvChatStatus = findViewById(R.id.tvChatStatus);
+        recyclerChatMessages = findViewById(R.id.recyclerChatMessages);
+        editChatMessage = findViewById(R.id.editChatMessage);
+        btnSendChatMessage = findViewById(R.id.btnSendChatMessage);
 
         SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         senderId = prefs.getString("userID", "");
         recipientId = getIntent().getStringExtra("recipientId");
         dogName = getIntent().getStringExtra("dogName");
-        String diaryDate = getIntent().getStringExtra("diaryDate");
 
         if (TextUtils.isEmpty(recipientId)) {
             recipientId = getIntent().getStringExtra("fosterId");
@@ -50,61 +67,168 @@ public class MessageActivity extends AppCompatActivity {
             dogName = "강아지";
         }
 
-        tvFosterName.setText(TextUtils.isEmpty(recipientId) ? "알 수 없음" : recipientId);
-        editContactTitle.setText(dogName + " 문의");
-        if (!TextUtils.isEmpty(diaryDate)) {
-            editContactMessage.setHint(diaryDate + " 일지를 보고 문의할 내용을 적어주세요.");
-        }
+        messages = new ArrayList<>();
+        adapter = new ChatMessageAdapter(messages, senderId);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setStackFromEnd(true);
+        recyclerChatMessages.setLayoutManager(layoutManager);
+        recyclerChatMessages.setAdapter(adapter);
 
-        btnSendMessage.setOnClickListener(v -> sendMessage());
+        tvChatPartner.setText(recipientId + "님과 대화");
+        tvChatStatus.setText(dogName + " 입양 문의 채팅");
+
+        btnSendChatMessage.setOnClickListener(v -> sendChatMessage());
+        editChatMessage.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                sendChatMessage();
+                return true;
+            }
+            return false;
+        });
+
+        setupFirebaseChat();
     }
 
-    private void sendMessage() {
-        String title = editContactTitle.getText().toString().trim();
-        String content = editContactMessage.getText().toString().trim();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (chatRef != null && messageListener != null) {
+            chatRef.child("messages").removeEventListener(messageListener);
+        }
+    }
 
+    private void setupFirebaseChat() {
         if (TextUtils.isEmpty(senderId)) {
-            Toast.makeText(this, "로그인 정보가 없습니다.", Toast.LENGTH_SHORT).show();
+            showUnavailable("로그인 후 실시간 대화를 사용할 수 있습니다.");
             return;
         }
         if (TextUtils.isEmpty(recipientId)) {
-            Toast.makeText(this, "받는 사람 정보가 없습니다.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (TextUtils.isEmpty(content)) {
-            Toast.makeText(this, "문의 내용을 입력하세요.", Toast.LENGTH_SHORT).show();
+            showUnavailable("대화 상대 정보가 없습니다.");
             return;
         }
 
-        StringRequest request = new StringRequest(
-                Request.Method.POST,
-                ServerConfig.endpoint("SaveMessage.jsp"),
-                response -> {
-                    if ("success".equals(response.trim())) {
-                        Toast.makeText(this, "문의 메시지를 보냈습니다.", Toast.LENGTH_SHORT).show();
-                        finish();
-                    } else {
-                        Toast.makeText(this, "문의 메시지 저장에 실패했습니다.", Toast.LENGTH_SHORT).show();
+        try {
+            if (FirebaseApp.getApps(this).isEmpty()) {
+                FirebaseApp app = FirebaseApp.initializeApp(this);
+                if (app == null) {
+                    showUnavailable("Firebase 설정 파일을 찾을 수 없습니다. app/google-services.json을 추가해 주세요.");
+                    return;
+                }
+            }
+            chatId = buildChatId(senderId, recipientId, dogName);
+            chatRef = FirebaseDatabase.getInstance().getReference("doglog_chats").child(chatId);
+        } catch (IllegalStateException e) {
+            showUnavailable("Firebase 설정 파일을 찾을 수 없습니다. app/google-services.json을 추가해 주세요.");
+            return;
+        } catch (Exception e) {
+            showUnavailable("Firebase 채팅을 시작할 수 없습니다.");
+            return;
+        }
+
+        saveChatRoomMeta();
+        listenMessages();
+    }
+
+    private void saveChatRoomMeta() {
+        Map<String, Object> room = new HashMap<>();
+        room.put("chatId", chatId);
+        room.put("dogName", dogName);
+        room.put("participantA", minUser(senderId, recipientId));
+        room.put("participantB", maxUser(senderId, recipientId));
+        room.put("updatedAt", ServerValue.TIMESTAMP);
+        chatRef.updateChildren(room);
+    }
+
+    private void listenMessages() {
+        tvChatStatus.setText("실시간 연결 중...");
+        messageListener = chatRef.child("messages").orderByChild("sentAt")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        messages.clear();
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            ChatMessage message = child.getValue(ChatMessage.class);
+                            if (message != null) {
+                                messages.add(message);
+                            }
+                        }
+                        adapter.notifyDataSetChanged();
+                        if (!messages.isEmpty()) {
+                            recyclerChatMessages.scrollToPosition(messages.size() - 1);
+                        }
+                        tvChatStatus.setText(dogName + " 입양 문의 채팅");
                     }
-                },
-                error -> Toast.makeText(this, "서버 연결을 확인하세요.", Toast.LENGTH_SHORT).show()) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                params.put("senderId", senderId);
-                params.put("receiverId", recipientId);
-                params.put("dogName", dogName);
-                params.put("title", title);
-                params.put("content", content);
-                return params;
-            }
 
-            @Override
-            public String getBodyContentType() {
-                return UTF8_FORM_CONTENT_TYPE;
-            }
-        };
-        request.setShouldCache(false);
-        Volley.newRequestQueue(this).add(request);
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        tvChatStatus.setText("연결 오류");
+                        Toast.makeText(MessageActivity.this, "Firebase 연결을 확인하세요.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void sendChatMessage() {
+        String text = editChatMessage.getText().toString().trim();
+        if (TextUtils.isEmpty(text)) {
+            return;
+        }
+        if (chatRef == null) {
+            Toast.makeText(this, "Firebase 채팅 설정이 필요합니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String messageId = chatRef.child("messages").push().getKey();
+        if (messageId == null) {
+            Toast.makeText(this, "메시지를 만들 수 없습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, Object> message = new HashMap<>();
+        message.put("id", messageId);
+        message.put("senderId", senderId);
+        message.put("text", text);
+        message.put("sentAt", ServerValue.TIMESTAMP);
+
+        Map<String, Object> roomUpdates = new HashMap<>();
+        roomUpdates.put("lastMessage", text);
+        roomUpdates.put("lastSenderId", senderId);
+        roomUpdates.put("updatedAt", ServerValue.TIMESTAMP);
+
+        chatRef.child("messages").child(messageId).setValue(message)
+                .addOnSuccessListener(unused -> {
+                    editChatMessage.setText("");
+                    chatRef.updateChildren(roomUpdates);
+                })
+                .addOnFailureListener(error ->
+                        Toast.makeText(this, "메시지 전송에 실패했습니다.", Toast.LENGTH_SHORT).show());
+    }
+
+    private void showUnavailable(String message) {
+        tvChatStatus.setText(message);
+        editChatMessage.setEnabled(false);
+        btnSendChatMessage.setEnabled(false);
+        btnSendChatMessage.setAlpha(0.45f);
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    private String buildChatId(String firstUser, String secondUser, String dog) {
+        String first = minUser(firstUser, secondUser);
+        String second = maxUser(firstUser, secondUser);
+        return sanitize(dog) + "_" + sanitize(first) + "_" + sanitize(second);
+    }
+
+    private String minUser(String firstUser, String secondUser) {
+        return firstUser.compareTo(secondUser) <= 0 ? firstUser : secondUser;
+    }
+
+    private String maxUser(String firstUser, String secondUser) {
+        return firstUser.compareTo(secondUser) <= 0 ? secondUser : firstUser;
+    }
+
+    private String sanitize(String value) {
+        if (TextUtils.isEmpty(value)) {
+            return "unknown";
+        }
+        return value.toLowerCase(Locale.KOREA).replaceAll("[^가-힣a-z0-9_-]", "_");
     }
 }

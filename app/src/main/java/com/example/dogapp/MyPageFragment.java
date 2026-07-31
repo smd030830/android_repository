@@ -24,14 +24,23 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class MyPageFragment extends Fragment {
@@ -41,10 +50,15 @@ public class MyPageFragment extends Fragment {
     private String userID;
     private String userType;
     private ArrayList<ContactMessage> messages;
+    private ArrayList<ContactMessage> savedMessages;
+    private ArrayList<ContactMessage> realtimeChats;
     private ContactMessageAdapter adapter;
     private TextView tvMyPageUser;
     private TextView tvMessageSectionTitle;
     private TextView tvEmptyMessages;
+    private DatabaseReference chatRoomsRef;
+    private ValueEventListener chatRoomsListener;
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.KOREA);
 
     @Nullable
     @Override
@@ -67,15 +81,26 @@ public class MyPageFragment extends Fragment {
         }
 
         messages = new ArrayList<>();
-        adapter = new ContactMessageAdapter(messages, isFoster(), this::showReplyDialog);
+        savedMessages = new ArrayList<>();
+        realtimeChats = new ArrayList<>();
+        adapter = new ContactMessageAdapter(messages, isFoster(), this::showReplyDialog, this::openChat);
         recyclerViewMessages.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerViewMessages.setAdapter(adapter);
 
         btnLogout.setOnClickListener(v -> logout());
         applyHeader();
         loadMessages();
+        listenRealtimeChats();
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (chatRoomsRef != null && chatRoomsListener != null) {
+            chatRoomsRef.removeEventListener(chatRoomsListener);
+        }
     }
 
     @Override
@@ -93,8 +118,8 @@ public class MyPageFragment extends Fragment {
     private void applyHeader() {
         String userTypeText = isFoster() ? "임시보호자" : "입양희망자";
         tvMyPageUser.setText("아이디: " + userID + "\n회원 구분: " + userTypeText);
-        tvMessageSectionTitle.setText(isFoster() ? "받은 문의 메시지" : "보낸 문의와 답장");
-        tvEmptyMessages.setText(isFoster() ? "아직 받은 문의가 없습니다." : "아직 보낸 문의가 없습니다.");
+        tvMessageSectionTitle.setText(isFoster() ? "받은 문의와 실시간 대화" : "보낸 문의와 실시간 대화");
+        tvEmptyMessages.setText(isFoster() ? "아직 받은 문의나 대화가 없습니다." : "아직 보낸 문의나 대화가 없습니다.");
     }
 
     private void loadMessages() {
@@ -121,11 +146,11 @@ public class MyPageFragment extends Fragment {
                 url,
                 null,
                 response -> {
-                    messages.clear();
+                    savedMessages.clear();
                     for (int i = 0; i < response.length(); i++) {
                         try {
                             JSONObject item = response.getJSONObject(i);
-                            messages.add(new ContactMessage(
+                            savedMessages.add(new ContactMessage(
                                     item.optInt("id"),
                                     item.optString("senderId"),
                                     item.optString("receiverId"),
@@ -139,12 +164,88 @@ public class MyPageFragment extends Fragment {
                             Toast.makeText(getActivity(), "메시지를 읽는 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
                         }
                     }
-                    adapter.notifyDataSetChanged();
-                    updateEmptyState();
+                    mergeMessageLists();
                 },
                 error -> Toast.makeText(getActivity(), "메시지를 불러오지 못했습니다.", Toast.LENGTH_SHORT).show());
         request.setShouldCache(false);
         Volley.newRequestQueue(requireActivity()).add(request);
+    }
+
+    private void listenRealtimeChats() {
+        if (TextUtils.isEmpty(userID)) {
+            return;
+        }
+
+        try {
+            if (FirebaseApp.getApps(requireContext()).isEmpty()) {
+                FirebaseApp app = FirebaseApp.initializeApp(requireContext());
+                if (app == null) {
+                    return;
+                }
+            }
+            chatRoomsRef = FirebaseDatabase.getInstance().getReference("doglog_chats");
+        } catch (Exception e) {
+            return;
+        }
+
+        chatRoomsListener = chatRoomsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                realtimeChats.clear();
+                for (DataSnapshot roomSnapshot : snapshot.getChildren()) {
+                    ContactMessage chatSummary = buildChatSummary(roomSnapshot);
+                    if (chatSummary != null) {
+                        realtimeChats.add(chatSummary);
+                    }
+                }
+                mergeMessageLists();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getActivity(), "실시간 대화 목록을 불러오지 못했습니다.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private ContactMessage buildChatSummary(DataSnapshot roomSnapshot) {
+        String participantA = roomSnapshot.child("participantA").getValue(String.class);
+        String participantB = roomSnapshot.child("participantB").getValue(String.class);
+        if (!userID.equals(participantA) && !userID.equals(participantB)) {
+            return null;
+        }
+
+        String partnerId = userID.equals(participantA) ? participantB : participantA;
+        if (TextUtils.isEmpty(partnerId)) {
+            return null;
+        }
+
+        String dogName = roomSnapshot.child("dogName").getValue(String.class);
+        String lastMessage = roomSnapshot.child("lastMessage").getValue(String.class);
+        Long updatedAt = roomSnapshot.child("updatedAt").getValue(Long.class);
+        String createdAt = updatedAt == null ? "" : dateFormat.format(new Date(updatedAt));
+        String content = TextUtils.isEmpty(lastMessage) ? "대화방이 생성되었습니다." : lastMessage;
+
+        String senderId = isFoster() ? partnerId : userID;
+        String receiverId = isFoster() ? userID : partnerId;
+        return new ContactMessage(
+                -1,
+                senderId,
+                receiverId,
+                TextUtils.isEmpty(dogName) ? "강아지" : dogName,
+                "실시간 대화",
+                content,
+                "",
+                createdAt,
+                "");
+    }
+
+    private void mergeMessageLists() {
+        messages.clear();
+        messages.addAll(realtimeChats);
+        messages.addAll(savedMessages);
+        adapter.notifyDataSetChanged();
+        updateEmptyState();
     }
 
     private void showReplyDialog(ContactMessage message) {
@@ -202,6 +303,19 @@ public class MyPageFragment extends Fragment {
         };
         request.setShouldCache(false);
         Volley.newRequestQueue(requireActivity()).add(request);
+    }
+
+    private void openChat(ContactMessage message) {
+        String recipientId = isFoster() ? message.getSenderId() : message.getReceiverId();
+        if (TextUtils.isEmpty(recipientId)) {
+            Toast.makeText(getActivity(), "대화 상대 정보를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent intent = new Intent(getActivity(), MessageActivity.class);
+        intent.putExtra("recipientId", recipientId);
+        intent.putExtra("dogName", message.getDogName());
+        startActivity(intent);
     }
 
     private void logout() {

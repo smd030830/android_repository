@@ -8,4 +8,9 @@
     <color name="text_primary">#1E293B</color>
     <color name="text_secondary">#64748B</color>
     <color name="border_gray">#E2E8F0</color>
+    <color name="chat_background">#EEF5F1</color>
+    <color name="chat_other_bubble">#FFFFFF</color>
+    <color name="chat_mine_bubble">#2563EB</color>
+    <color name="chat_input_background">#F1F5F9</color>
+    <color name="chat_header_subtitle">#DCEBFF</color>
 </resources>

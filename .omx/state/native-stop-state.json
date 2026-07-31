@@ -22,11 +22,11 @@
     },
     "019ea758-5d9c-7d82-8493-1e10fa7fb388": {
       "ordinary_no_progress_guard": {
-        "fingerprint": "ordinary|pdf로 변환한 파일 만들었습니다. [최종보고서_doglog_변환.pdf](d:/github/android_repository/final_output/pj산출물_doglog_db설계반영/최종보고서_doglog_변환.pdf) 정상 pdf로 확인했고, 총 10페이지입니다.",
-        "first_seen_at": "2026-06-12T09:46:03.447Z",
-        "last_seen_at": "2026-06-12T09:46:03.447Z",
+        "fingerprint": "ordinary|완료했어. firebase realtime database 기반으로 입양희망자와 임시보호자가 실시간 대화할 수 있게 연결했고, 채팅 ui도 말풍선/상단바/입력창 형태로 보기 좋게 정리했어. 주요 변경: - 실시간 채팅 화면 구현: [messageactivity.java](d:/github/android_repository/app/src/main/java/com/example/dogapp/messageactivity.java) - firebase 메시지 모델/어댑터 추가: [chatmessage.java](d:/github/android_repository/app/src/main/java/com/example/dogapp/chatmessage.java), [chatmessageadapter.java](d:/github/android_repository/app/src/main/java/com/example/dogapp/chatmessageadapter.java) - 마이페이지에서 firebase 대화방 목록 표시 및 “실시간 대화” 버튼 추가: [mypagefragment.java](d:/github/android_repository/app/src/main/java/com/example/dogapp/mypagefragment.java), [contactmessageadapter.java](d:/github/android_repository/app/src/main/java/com/example/dogapp/contactmessageadapter.java) - 채팅 ui 리소스 추가/정리: [activity_message.xml](d:/github/android_repository/app/src/main/res/layout/activity_message.xml), [item_chat_message.xml](d:/github/android_repository/app/src/main/res/layout/item_chat_message.xml) - firebase 의존성 추가 및 gradle wrapper 복구: [app/build.gradle](d:/github/android_repository/app/build.gradle), [gradle-wrapper.properties](d:/github/android_repository/gradle/wrapper/gradle-wrapper.properties) - firebase 설정 방법 readme에 추가: [readme.md](d:/github/android_repository/readme.md) 검증도 했어: ```powershell .\\gradlew.bat :app:assembledebug --no-daemon ``` 결과는 `build successful`. 주의할 점 하나만 있어: 실제 firebase 서버에 붙으려면 firebase 콘솔에서 android 앱 패키지명을 `com.example.dogapp`으로 등록하고, 받은 `google-services.json`을 [app/google-services.json](d:/github/android_repository/app/google-services.json) 위치에 넣어야 해. 그리고 firebase 콘솔에서 realtime database를 켜야 실시간 채팅이 작동해. 참고한 공식 문서: [firebase android 설정](https://firebase.google.com/docs/android/setup), [realtime database android 시작하기](https://firebase.google.com/docs/database/android/start)",
+        "first_seen_at": "2026-07-31T09:13:30.309Z",
+        "last_seen_at": "2026-07-31T09:13:30.309Z",
         "repeat_count": 1,
-        "last_turn_id": "019ebb38-e0e4-7c83-9a91-38263a1aa3c2",
+        "last_turn_id": "019fb764-2aea-7701-8963-4efc72096730",
         "last_thread_id": null
       }
     },

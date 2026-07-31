@@ -17,17 +17,31 @@ public class ContactMessageAdapter extends RecyclerView.Adapter<ContactMessageAd
         void onReplyClick(ContactMessage message);
     }
 
+    public interface ChatClickListener {
+        void onChatClick(ContactMessage message);
+    }
+
     private final ArrayList<ContactMessage> messages;
     private final boolean receivedMode;
     private final ReplyClickListener replyClickListener;
+    private final ChatClickListener chatClickListener;
 
     public ContactMessageAdapter(
             ArrayList<ContactMessage> messages,
             boolean receivedMode,
             ReplyClickListener replyClickListener) {
+        this(messages, receivedMode, replyClickListener, null);
+    }
+
+    public ContactMessageAdapter(
+            ArrayList<ContactMessage> messages,
+            boolean receivedMode,
+            ReplyClickListener replyClickListener,
+            ChatClickListener chatClickListener) {
         this.messages = messages;
         this.receivedMode = receivedMode;
         this.replyClickListener = replyClickListener;
+        this.chatClickListener = chatClickListener;
     }
 
     @NonNull
@@ -61,6 +75,12 @@ public class ContactMessageAdapter extends RecyclerView.Adapter<ContactMessageAd
                 replyClickListener.onReplyClick(message);
             }
         });
+
+        holder.btnOpenChat.setOnClickListener(v -> {
+            if (chatClickListener != null) {
+                chatClickListener.onChatClick(message);
+            }
+        });
     }
 
     @Override
@@ -73,6 +93,7 @@ public class ContactMessageAdapter extends RecyclerView.Adapter<ContactMessageAd
         TextView tvMessageTitle;
         TextView tvMessageContent;
         TextView tvMessageReply;
+        Button btnOpenChat;
         Button btnReplyMessage;
 
         public MessageViewHolder(@NonNull View itemView) {
@@ -81,6 +102,7 @@ public class ContactMessageAdapter extends RecyclerView.Adapter<ContactMessageAd
             tvMessageTitle = itemView.findViewById(R.id.tvMessageTitle);
             tvMessageContent = itemView.findViewById(R.id.tvMessageContent);
             tvMessageReply = itemView.findViewById(R.id.tvMessageReply);
+            btnOpenChat = itemView.findViewById(R.id.btnOpenChat);
             btnReplyMessage = itemView.findViewById(R.id.btnReplyMessage);
         }
     }

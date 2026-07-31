@@ -2,6 +2,10 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+if (file("google-services.json").exists()) {
+    apply plugin: "com.google.gms.google-services"
+}
+
 android {
     namespace 'com.example.dogapp'
     compileSdk 36
@@ -35,6 +39,8 @@ dependencies {
     implementation libs.activity
     implementation libs.constraintlayout
     implementation libs.volley
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.database
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
