@@ -23,9 +23,14 @@ Or use the Gradle task from Android Studio:
 The equivalent PowerShell command is:
 
 ```powershell
-$env:JAVA_HOME = "C:\Users\smd08\.jdks\temurin-21.0.10"
 .\gradlew.bat :backend:bootRun
 ```
 
 Verify the server at `http://localhost:8080/health`. The Android emulator uses
 `http://10.0.2.2:8080/ServerProject/...` to reach the same server on the host PC.
+
+To run against MySQL instead of the embedded H2 database:
+
+```powershell
+.\gradlew.bat :backend:bootRun --args="--spring.profiles.active=mysql"
+```
